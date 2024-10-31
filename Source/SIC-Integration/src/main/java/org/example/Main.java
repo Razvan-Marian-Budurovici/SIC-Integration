@@ -3,6 +3,7 @@ package org.example;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.functions;
 
 
 /*
@@ -10,7 +11,7 @@ Commands:
 docker cp test.json spark-master:/opt/bitnami/spark/
 docker cp target/SIC-Integration-1.0-SNAPSHOT.jar spark-master:/opt/bitnami/spark/
 docker exec -it spark-master bash
-docker exec -it spark-master /opt/bitnami/spark/bin/spark-submit --packages io.delta:delta-spark_2.13:3.1.0 --master spark://spark-master:7077 --class org.example.Main /opt/bitnami/spark/SIC-Integration-1.0-SNAPSHOT.jar
+docker exec -it spark-master /opt/bitnami/spark/bin/spark-submit --packages io.delta:delta-spark_2.12:3.2.0 --master spark://spark-master:7077 --class org.example.Main /opt/bitnami/spark/SIC-Integration-1.0-SNAPSHOT.jar
  */
 
 public class Main {
@@ -21,8 +22,14 @@ public class Main {
                 .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
                 .getOrCreate();
 
-        Dataset<Row> df = spark.read().option("multiline","true").json("/opt/bitnami/spark/test.json");
+        Dataset<Row> jsonData = spark.read().option("multiline","true").json("/opt/bitnami/spark/test.json");
+
+        Dataset<Row> df = jsonData
+                .select(jsonData.col("imageID").as("CardID"), functions.explode(jsonData.col("findings")).as("finding"))
+                .select("CardID", "finding.id", "finding.probability").withColumnRenamed("id","InsectID");
+
         df.write().mode("overwrite").parquet("/opt/bitnami/spark/test/");
+        df.show();
 
         df.write().format("delta").mode("overwrite").save("/opt/bitnami/spark/tmp/delta-table");
 
