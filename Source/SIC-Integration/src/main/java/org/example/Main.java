@@ -5,6 +5,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 
+import static org.apache.spark.sql.types.DataTypes.createDecimalType;
+
 
 /*
 Commands:
@@ -29,11 +31,19 @@ public class Main {
                 .select("CardID", "finding.id", "finding.probability").withColumnRenamed("id","InsectID");
 
         df.write().mode("overwrite").parquet("/opt/bitnami/spark/test/");
-        df.show();
 
         df.write().format("delta").mode("overwrite").save("/opt/bitnami/spark/tmp/delta-table");
 
         Dataset<Row> df2 = spark.read().format("delta").load("/opt/bitnami/spark/tmp/delta-table");
-        df2.show();
+
+        Dataset<Row> findings = df2
+                .groupBy("InsectID")
+                .agg(
+                        functions.count("InsectID").as("InsectCount"),
+                        functions.avg("probability").as("accuracy")
+                );
+
+        findings.show();
+        findings.write().format("delta").mode("overwrite").save("/opt/bitnami/spark/tmp/InsectFindings");
     }
 }
