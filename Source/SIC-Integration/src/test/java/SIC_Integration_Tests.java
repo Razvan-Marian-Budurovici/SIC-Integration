@@ -17,7 +17,6 @@ import java.util.concurrent.TimeoutException;
 import static org.junit.Assert.assertEquals;
 
 public class SIC_Integration_Tests {
-    /*
 
     private SparkSession spark;
 
@@ -37,6 +36,10 @@ public class SIC_Integration_Tests {
             spark.stop();
         }
     }
+
+
+
+    /*
 
     public static Collection<Object[]> exampleInput(){
 

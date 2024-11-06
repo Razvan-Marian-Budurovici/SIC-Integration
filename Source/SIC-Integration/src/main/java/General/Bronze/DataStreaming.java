@@ -50,7 +50,6 @@ public class DataStreaming {
                 DataTypes.createStructField("probability", DataTypes.DoubleType, false)
         });
 
-        // Define the schema for the main JSON structure
         StructType schema = new StructType(new StructField[]{
                 DataTypes.createStructField("imageId", DataTypes.StringType, false),
                 DataTypes.createStructField("version", DataTypes.IntegerType, false),
