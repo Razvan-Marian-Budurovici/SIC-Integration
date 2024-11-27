@@ -38,35 +38,18 @@ public class DataStreaming {
 
     public static void testStream(SparkSession spark, String outputPath, String checkpointLocation) throws  Exception {
 
-        StructType findingsSchema = new StructType(new StructField[]{
-                DataTypes.createStructField("x", DataTypes.DoubleType, false),
-                DataTypes.createStructField("y", DataTypes.DoubleType, false),
-                DataTypes.createStructField("width", DataTypes.DoubleType, false),
-                DataTypes.createStructField("height", DataTypes.DoubleType, false),
-                DataTypes.createStructField("stretched", DataTypes.BooleanType, false),
-                DataTypes.createStructField("id", DataTypes.StringType, false),
-                DataTypes.createStructField("slug", DataTypes.StringType, false),
-                DataTypes.createStructField("colorProfile", DataTypes.StringType, false),
-                DataTypes.createStructField("probability", DataTypes.DoubleType, false)
-        });
-
-        StructType schema = new StructType(new StructField[]{
-                DataTypes.createStructField("imageId", DataTypes.StringType, false),
-                DataTypes.createStructField("version", DataTypes.IntegerType, false),
-                DataTypes.createStructField("name", DataTypes.StringType, false),
-                DataTypes.createStructField("colorProfile", DataTypes.StringType, false),
-                DataTypes.createStructField("findings", DataTypes.createArrayType(findingsSchema), false)
-        });
-
         Dataset<Row> fileStream = spark.readStream()
-                .schema(schema)
-                .json("/opt/bitnami/spark/inputTest");
+                .format("json")
+                .option("multiline","true")
+                .schema(DataSchema.getSchema())
+                .load("/opt/bitnami/spark/inputTest");
 
         fileStream.writeStream()
                 .format("parquet")
                 .option("path",outputPath)
                 .option("checkpointLocation", checkpointLocation)
                 .start()
-                .awaitTermination();
+                .processAllAvailable();
+
     }
 }

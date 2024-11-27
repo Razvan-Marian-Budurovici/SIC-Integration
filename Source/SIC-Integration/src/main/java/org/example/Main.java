@@ -1,18 +1,19 @@
 package org.example;
 
+import General.Bronze.DataSchema;
+import WorkPackage.SmartInsectCounting.Silver.DataNormalisation;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.functions;
 
 import WorkPackage.SmartInsectCounting.Bronze.DataInput;
 
-import static org.apache.spark.sql.types.DataTypes.createDecimalType;
+
 
 
 /*
 Commands:
-docker cp test.json spark-master:/opt/bitnami/spark/inputTest
+docker cp test2.json spark-master:/opt/bitnami/spark/inputTest/
 docker cp target/SIC-Integration-1.0-SNAPSHOT.jar spark-master:/opt/bitnami/spark/
 docker exec -it spark-master bash
 docker exec -it spark-master /opt/bitnami/spark/bin/spark-submit --packages io.delta:delta-spark_2.12:3.2.0 --master spark://spark-master:7077 --class org.example.Main /opt/bitnami/spark/SIC-Integration-1.0-SNAPSHOT.jar
@@ -33,26 +34,22 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        Dataset<Row> jsonData = spark.read().option("multiline","true").json("/opt/bitnami/spark/test.json");
+        DataNormalisation organise = new DataNormalisation(spark);
+        try {
+            organise.startTableUpdateStream();
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
 
-        Dataset<Row> df = jsonData
-                .select(jsonData.col("imageID").as("CardID"), functions.explode(jsonData.col("findings")).as("finding"))
-                .select("CardID", "finding.id", "finding.probability").withColumnRenamed("id","InsectID");
+        Dataset<Row> origin = spark.read().schema(DataSchema.getSchema()).format("parquet").load("/opt/bitnami/spark/WP_3/Bronze/Data");
+        Dataset<Row> set = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Silver/Data/yellowCardTable");
+        Dataset<Row> bet = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Silver/Data/insectFindingTable");
 
-        df.write().mode("overwrite").parquet("/opt/bitnami/spark/test/");
+        origin.printSchema();
+        origin.show();
+        set.show();
+        bet.show();
 
-        df.write().format("delta").mode("overwrite").save("/opt/bitnami/spark/tmp/delta-table");
-
-        Dataset<Row> df2 = spark.read().format("delta").load("/opt/bitnami/spark/tmp/delta-table");
-
-        Dataset<Row> findings = df2
-                .groupBy("InsectID")
-                .agg(
-                        functions.count("InsectID").as("InsectCount"),
-                        functions.avg("probability").as("accuracy")
-                );
-
-        findings.show();
-        findings.write().format("delta").mode("overwrite").save("/opt/bitnami/spark/tmp/InsectFindings");
-    }
+        spark.stop();
+        }
 }

@@ -10,8 +10,8 @@ public class DataInput {
     String serviceURL = "",
             adminURL = "",
             topic = "",
-            outputPath = "/opt/bitnami/spark/WP_1/Bronze/Data",
-            checkpointPath = "/opt/bitnami/spark/WP_1/Bronze/DataCheckpoint";
+            outputPath = "/opt/bitnami/spark/WP_3/Bronze/Data",
+            checkpointPath = "/opt/bitnami/spark/WP_3/Bronze/DataCheckpoint";
     SparkSession spark;
 
     public DataInput(SparkSession spark){
