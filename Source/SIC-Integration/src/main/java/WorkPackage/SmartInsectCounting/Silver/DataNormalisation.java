@@ -42,7 +42,7 @@ public class DataNormalisation {
 
         Dataset<Row> yellowCard = readStream
                 .select(readStream.col("imageID"))
-                .withColumn("GreenhouseID", substring(readStream.col("imageID"),0,2))
+                .withColumn("AreaID", substring(readStream.col("imageID"),0,2))
                 .withColumn("Location", substring(readStream.col("imageID"),4,6))
                 .withColumn("DateAndTime",functions.current_timestamp())
                 .withColumnRenamed("imageID", "CardID");

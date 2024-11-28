@@ -24,13 +24,14 @@ public class DataPreparation {
     public void startPrepareInsectStream() throws Exception{
         Dataset<Row> insectTableStream = fileStream(spark,insectSource, DataSchema.getFindingSchema())
                 .withWatermark("DateAndTime","2 minutes");
+
         Dataset<Row> insectPopulation = insectTableStream
                 .groupBy(
                         insectTableStream.col("InsectType"),
+                        insectTableStream.col("CardID"),
                         functions.window(functions.col("DateAndTime"), "2 minutes").as("TimeStamp")
                 )
                 .agg(
-
                         functions.count("*").as("Count"),
                         functions.avg("probability")
                 )
@@ -38,15 +39,11 @@ public class DataPreparation {
                 .withColumn("Accuracy",functions.format_number(functions.col("avg(probability)"),2))
                 .select(
                         functions.col("InsectType"),
+                        functions.col("CardID"),
                         functions.col("Count"),
                         functions.col("Accuracy"),
                         functions.col("Date")
                 );
-
-
-
-
-
 
         insectPopulation.writeStream()
                 .format("delta")

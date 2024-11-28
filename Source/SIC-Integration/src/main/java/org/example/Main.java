@@ -14,7 +14,7 @@ import WorkPackage.SmartInsectCounting.Bronze.DataInput;
 
 /*
 Commands:
-docker cp test2.json spark-master:/opt/bitnami/spark/inputTest/
+docker cp TestJson/test4.json spark-master:/opt/bitnami/spark/inputTest/
 docker cp target/SIC-Integration-1.0-SNAPSHOT.jar spark-master:/opt/bitnami/spark/
 docker exec -it spark-master bash
 docker exec -it spark-master /opt/bitnami/spark/bin/spark-submit --packages io.delta:delta-spark_2.12:3.2.0 --master spark://spark-master:7077 --class org.example.Main /opt/bitnami/spark/SIC-Integration-1.0-SNAPSHOT.jar
