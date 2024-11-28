@@ -1,6 +1,7 @@
 package org.example;
 
 import General.Bronze.DataSchema;
+import WorkPackage.SmartInsectCounting.Gold.DataPreparation;
 import WorkPackage.SmartInsectCounting.Silver.DataNormalisation;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -28,27 +29,30 @@ public class Main {
                 .getOrCreate();
 
         DataInput inputStream = new DataInput(spark);
+        DataNormalisation organise = new DataNormalisation(spark);
+        DataPreparation prepare = new DataPreparation(spark);
         try {
             inputStream.startStream();
+            organise.startTableUpdateStream();
+            prepare.startPrepareInsectStream();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        DataNormalisation organise = new DataNormalisation(spark);
-        try {
-            organise.startTableUpdateStream();
-        } catch (Exception e){
-            throw new RuntimeException(e);
-        }
 
-        Dataset<Row> origin = spark.read().schema(DataSchema.getSchema()).format("parquet").load("/opt/bitnami/spark/WP_3/Bronze/Data");
-        Dataset<Row> set = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Silver/Data/yellowCardTable");
-        Dataset<Row> bet = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Silver/Data/insectFindingTable");
+        Dataset<Row> origin = spark.read().schema(DataSchema.getOGSchema()).format("parquet").load("/opt/bitnami/spark/WP_3/Bronze/Data");
+        Dataset<Row> card = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Silver/Data/yellowCardTable");
+        Dataset<Row> insect = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Silver/Data/insectFindingTable");
+        Dataset<Row> pop = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Gold/Data/insectPopulation");
 
         origin.printSchema();
         origin.show();
-        set.show();
-        bet.show();
+        card.printSchema();
+        card.show();
+        insect.printSchema();
+        insect.show();
+        pop.printSchema();
+        pop.show();
 
         spark.stop();
         }

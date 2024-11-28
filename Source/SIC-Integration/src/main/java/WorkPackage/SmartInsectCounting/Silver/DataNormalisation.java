@@ -1,5 +1,6 @@
 package WorkPackage.SmartInsectCounting.Silver;
 
+import General.Bronze.DataSchema;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -24,12 +25,13 @@ public class DataNormalisation {
     }
 
     public void startTableUpdateStream() throws Exception {
-        Dataset<Row> readStream = fileStream(spark,fileSource);
+        Dataset<Row> readStream = fileStream(spark,fileSource, DataSchema.getOGSchema());
         Dataset<Row> insectFindingEntry = readStream
                 .select(readStream.col("imageID").as("CardID"), functions.explode(readStream.col("findings")).as("finding"))
                 .select("finding.id", "CardID", "finding.type", "finding.probability")
                 .withColumnRenamed("id","InsectID")
-                .withColumnRenamed("type","InsectType");
+                .withColumnRenamed("type","InsectType")
+                .withColumn("DateAndTime", functions.current_timestamp());
 
         insectFindingEntry.writeStream()
                 .format("delta")
@@ -42,7 +44,7 @@ public class DataNormalisation {
                 .select(readStream.col("imageID"))
                 .withColumn("GreenhouseID", substring(readStream.col("imageID"),0,2))
                 .withColumn("Location", substring(readStream.col("imageID"),4,6))
-                .withColumn("Date&Time",functions.current_timestamp())
+                .withColumn("DateAndTime",functions.current_timestamp())
                 .withColumnRenamed("imageID", "CardID");
 
         yellowCard.writeStream()

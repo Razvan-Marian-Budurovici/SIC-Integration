@@ -6,7 +6,7 @@ import org.apache.spark.sql.types.StructType;
 
 public class DataSchema {
 
-    public static StructType getSchema() {
+    public static StructType getOGSchema() {
 
         StructType findingsSchema = new StructType(new StructField[]{
                 DataTypes.createStructField("x", DataTypes.DoubleType, false),
@@ -27,6 +27,33 @@ public class DataSchema {
                 DataTypes.createStructField("name", DataTypes.StringType, false),
                 DataTypes.createStructField("colorProfile", DataTypes.StringType, false),
                 DataTypes.createStructField("findings", DataTypes.createArrayType(findingsSchema), false)
+        });
+
+        return schema;
+    }
+
+    public static StructType getFindingSchema(){
+
+        StructType schema = new StructType(new StructField[]{
+                DataTypes.createStructField("InsectID",DataTypes.StringType, true),
+                DataTypes.createStructField("CardID",DataTypes.StringType, true),
+                DataTypes.createStructField("InsectType",DataTypes.StringType, true),
+                DataTypes.createStructField("probability",DataTypes.DoubleType, true),
+                DataTypes.createStructField("DateAndTime",DataTypes.TimestampType, false)
+
+        });
+
+        return schema;
+    }
+
+    public static StructType getCardSchema(){
+
+        StructType schema = new StructType(new StructField[]{
+                DataTypes.createStructField("CardID",DataTypes.StringType, true),
+                DataTypes.createStructField("GreenhouseID",DataTypes.StringType, true),
+                DataTypes.createStructField("Location",DataTypes.StringType, true),
+                DataTypes.createStructField("DateAndTime",DataTypes.TimestampType, false)
+
         });
 
         return schema;

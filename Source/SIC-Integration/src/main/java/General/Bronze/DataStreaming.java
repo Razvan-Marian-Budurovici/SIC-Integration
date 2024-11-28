@@ -41,7 +41,7 @@ public class DataStreaming {
         Dataset<Row> fileStream = spark.readStream()
                 .format("json")
                 .option("multiline","true")
-                .schema(DataSchema.getSchema())
+                .schema(DataSchema.getOGSchema())
                 .load("/opt/bitnami/spark/inputTest");
 
         fileStream.writeStream()
