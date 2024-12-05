@@ -45,13 +45,13 @@ public class Main {
         Dataset<Row> insect = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Silver/Data/insectFindingTable");
         Dataset<Row> pop = spark.read().format("delta").load("/opt/bitnami/spark/WP_3/Gold/Data/insectPopulation");
 
-        origin.printSchema();
+        //origin.printSchema();
         origin.show();
-        card.printSchema();
+        //card.printSchema();
         card.show();
-        insect.printSchema();
+        //insect.printSchema();
         insect.show();
-        pop.printSchema();
+        //pop.printSchema();
         pop.show();
 
         spark.stop();
