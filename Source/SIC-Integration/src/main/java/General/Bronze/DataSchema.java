@@ -4,9 +4,9 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-public class DataSchema {
+public interface DataSchema {
 
-    public static StructType getOGSchema() {
+    static StructType getOGSchema() {
 
         StructType findingsSchema = new StructType(new StructField[]{
                 DataTypes.createStructField("x", DataTypes.DoubleType, false),
@@ -32,7 +32,7 @@ public class DataSchema {
         return schema;
     }
 
-    public static StructType getFindingSchema(){
+    static StructType getFindingSchema(){
 
         StructType schema = new StructType(new StructField[]{
                 DataTypes.createStructField("InsectID",DataTypes.StringType, true),
@@ -46,7 +46,7 @@ public class DataSchema {
         return schema;
     }
 
-    public static StructType getCardSchema(){
+    static StructType getCardSchema(){
 
         StructType schema = new StructType(new StructField[]{
                 DataTypes.createStructField("CardID",DataTypes.StringType, true),

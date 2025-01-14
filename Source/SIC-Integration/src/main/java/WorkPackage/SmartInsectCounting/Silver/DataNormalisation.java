@@ -27,7 +27,8 @@ public class DataNormalisation {
     public void startTableUpdateStream() throws Exception {
         Dataset<Row> readStream = fileStream(spark,fileSource, DataSchema.getOGSchema());
         Dataset<Row> insectFindingEntry = readStream
-                .select(readStream.col("imageID").as("CardID"), functions.explode(readStream.col("findings")).as("finding"))
+                .select(readStream.col("imageID").as("CardID"),
+                        functions.explode(readStream.col("findings")).as("finding"))
                 .select("finding.id", "CardID", "finding.type", "finding.probability")
                 .withColumnRenamed("id","InsectID")
                 .withColumnRenamed("type","InsectType")

@@ -1,4 +1,4 @@
 package General.Gold;
 
-public class DataUpload {
+public interface DataUpload {
 }

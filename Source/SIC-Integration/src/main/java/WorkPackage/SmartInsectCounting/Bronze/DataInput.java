@@ -1,11 +1,9 @@
 package WorkPackage.SmartInsectCounting.Bronze;
 
+import General.Bronze.DataStreaming;
 import org.apache.spark.sql.SparkSession;
 
-import static General.Bronze.DataStreaming.dataStream;
-import static General.Bronze.DataStreaming.testStream;
-
-public class DataInput {
+public class DataInput implements DataStreaming {
 
     String serviceURL = "",
             adminURL = "",
@@ -19,7 +17,10 @@ public class DataInput {
     }
 
     public void startStream() throws Exception{
+        //Test streaming with mock data
         testStream(spark, outputPath, checkpointPath);
+
+        //Apache Pulsar Streaming
         //dataStream(spark,serviceURL,adminURL,topic,outputPath,checkpointPath);
     }
 }
